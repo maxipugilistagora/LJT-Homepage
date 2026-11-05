@@ -8,15 +8,19 @@ jobs:
   enable:
     runs-on: ubuntu-latest
     steps:
-      - name: Enable Pages via API
+      - name: Check and enable Pages via API
         run: |
-          echo "Attempting to create Pages site..."
-          HTTP_CODE=$(curl -s -o response.json -w "%{http_code}" -X POST \
+          echo "=== GET current Pages status ==="
+          curl -s -w "\nHTTP:%{http_code}\n" \
+            -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" \
+            -H "Accept: application/vnd.github+json" \
+            -H "X-GitHub-Api-Version: 2022-11-28" \
+            https://api.github.com/repos/${{ github.repository }}/pages
+          echo ""
+          echo "=== POST create with source payload ==="
+          curl -s -w "\nHTTP:%{http_code}\n" -X POST \
             -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" \
             -H "Accept: application/vnd.github+json" \
             -H "X-GitHub-Api-Version: 2022-11-28" \
             https://api.github.com/repos/${{ github.repository }}/pages \
-            -d '{"build_type":"workflow"}')
-          echo "HTTP status: $HTTP_CODE"
-          echo "Response:"
-          cat response.json
+            -d '{"source":{"branch":"master","path":"/"}}'
