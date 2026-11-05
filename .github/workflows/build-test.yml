@@ -1,11 +1,10 @@
 name: Jekyll Build Test
-on:
-  workflow_dispatch:
+on: [workflow_dispatch]
 permissions:
   contents: read
 jobs:
   build:
-    runs-on: ubuntu-24.04
+    runs-on: ubuntu-latest
     steps:
       - name: Checkout
         uses: actions/checkout@v7.0.1
@@ -14,16 +13,9 @@ jobs:
         with:
           ruby-version: '3.1'
           bundler-cache: true
-          cache-version: 0
       - name: Build with Jekyll
         run: bundle exec jekyll build --baseurl "/LJT-Homepage"
         env:
           JEKYLL_ENV: production
       - name: Verify build output
-        run: |
-          echo "Build output listing:"
-          ls -la _site
-          echo "---"
-          ls _site/publications || true
-          echo "---"
-          grep -c "Junteng Liu" _site/index.html || true
+        run: ls -la _site && ls _site/publications
